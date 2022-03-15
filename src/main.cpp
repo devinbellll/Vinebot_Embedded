@@ -2,6 +2,7 @@
 #include "IMU.h"
 
 IMU FII_IMU;
+float quat[4];
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -12,5 +13,6 @@ void setup() {
 
 void loop() {
   digitalToggle(LED_BUILTIN);
-  delay(500);
+  FII_IMU.read_data(quat);
+  delay(10);
 }

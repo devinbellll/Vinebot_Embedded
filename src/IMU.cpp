@@ -90,11 +90,51 @@ int IMU::init(TwoWire *i2c, int AD0_val)
     if (success)
     {
         Serial.println(F("DMP enabled"));
+        return VINEBOT_OK;
     }
     else
     {
         Serial.println(F("Enable DMP failed"));
         Serial.println(F("Please check that you have uncommented line 29 (#define ICM_20948_USE_DMP) in ICM_20948_C.h..."));
+        return VINEBOT_ERR;
+    }
+}
+
+int IMU::read_data(float *quat_data)
+{
+    // Read any DMP data waiting in the FIFO
+    // Note:
+    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFONoDataAvail if no data is available.
+    //    If data is available, readDMPdataFromFIFO will attempt to read _one_ frame of DMP data.
+    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFOIncompleteData if a frame was present but was incomplete
+    //    readDMPdataFromFIFO will return ICM_20948_Stat_Ok if a valid frame was read.
+    //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFOMoreDataAvail if a valid frame was read _and_ the FIFO contains more (unread) data.
+    icm_20948_DMP_data_t data;
+    _ICM_20948.readDMPdataFromFIFO(&data);
+
+    if ((_ICM_20948.status == ICM_20948_Stat_Ok) || (_ICM_20948.status == ICM_20948_Stat_FIFOMoreDataAvail)) // Was valid data available?
+    {
+        if ((data.header & DMP_header_bitmap_Quat9) > 0) // We have asked for orientation data so we should receive Quat9
+        {
+            // Q0 value is computed from this equation: Q0^2 + Q1^2 + Q2^2 + Q3^2 = 1.
+            // In case of drift, the sum will not add to 1, therefore, quaternion data need to be corrected with right bias values.
+            // The quaternion data is scaled by 2^30.
+
+            // Scale to +/- 1
+            quat_data[X] = ((float)data.Quat9.Data.Q1) / 1073741824.0; // Convert to float. Divide by 2^30
+            quat_data[Y] = ((float)data.Quat9.Data.Q2) / 1073741824.0; // Convert to float. Divide by 2^30
+            quat_data[Z] = ((float)data.Quat9.Data.Q3) / 1073741824.0; // Convert to float. Divide by 2^30
+            quat_data[W] = sqrt(1.0 - ((quat_data[X] * quat_data[X]) + (quat_data[Y] * quat_data[Y]) + (quat_data[Z] * quat_data[Z])));
+
+            return VINEBOT_OK;
+        }
+        else 
+        {
+            return VINEBOT_ERR;
+        }
+    }   
+    else 
+    {
         return VINEBOT_ERR;
     }
 }

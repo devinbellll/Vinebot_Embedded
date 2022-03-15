@@ -19,7 +19,7 @@ class IMU {
 
         int init(TwoWire *i2c, int AD0_val);
 
-        int read_data(float quat_data);
+        int read_data(float *quat_data);
 
     private:
 
