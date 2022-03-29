@@ -1,18 +1,18 @@
 #include "common.h"
 #include "IMU.h"
 
-IMU FII_IMU;
+IMU fii_imu;
 float quat[4];
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   Wire.begin(400000);
-  FII_IMU.init(&Wire, 1);
+  fii_imu.init(&Wire, 1);
 }
 
 void loop() {
   digitalToggle(LED_BUILTIN);
-  FII_IMU.read_data(quat);
+  fii_imu.read_data(quat);
   delay(10);
 }

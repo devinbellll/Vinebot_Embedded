@@ -57,22 +57,12 @@ int IMU::init(TwoWire *i2c, int AD0_val)
     // Enable the DMP orientation sensor
     success &= (_ICM_20948.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
 
-    // Enable any additional sensors / features
-    //success &= (_ICM_20948.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-    //success &= (_ICM_20948.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
-    //success &= (_ICM_20948.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
-
     // Configuring DMP to output data at multiple ODRs:
     // DMP is capable of outputting multiple sensor data at different rates to FIFO.
     // Setting value can be calculated as follows:
     // Value = (DMP running rate / ODR ) - 1
     // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
     success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    //success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    //success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    //success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    //success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-    //success &= (_ICM_20948.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
 
     // Enable the FIFO
     success &= (_ICM_20948.enableFIFO() == ICM_20948_Stat_Ok);
